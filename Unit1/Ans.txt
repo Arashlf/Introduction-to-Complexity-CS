@@ -1,0 +1,18 @@
+Beginner Option:
+
+1- (pop=50) avg(383,374,264,207,389)=323.4	(pop=100) avg(261,178,155,172,109)=175
+	Yes, it is almost twice.
+
+2- (step=8) avg(464,485,377,384,422)=426.4
+	It seems increasing the max-step-size make it longer
+
+3- (angle=120) avg(211,219,279,286,252)=249.4
+	It speed up the average time.
+
+4- Done
+
+5- Done
+
+6- Done
+
+Intermediate Option:

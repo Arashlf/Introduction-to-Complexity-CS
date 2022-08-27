@@ -27,8 +27,7 @@ to go
       set food-eaten (food-eaten + 1)
       ; set label food-eaten
     ]
-    if (food-eaten > 2) [set color blue]
-    if (food-eaten > 4) [set color yellow]
+
   ]
 
   tick
