@@ -1,41 +1,28 @@
-turtles-own [food-eaten]
+turtles-own [food-eaten return-to-nest?]
+
+patches-own [nest?]
 
 to setup
   clear-all
   reset-ticks
   create-turtles population
-
   ask turtles
   [
+    set return-to-nest? false
     set shape "bug"
     set size 2
     set color red
     set food-eaten 0
   ]
   grow-food
+  set-up-nest
 end
 
-to go
-  if not any? patches with [pcolor = green] [stop]
-  ask turtles
-  [
-    ifelse coin-flip? [right random max-turn-angle][left random max-turn-angle]  ; if coin-flip? is true, turn right else turn left
-    forward random max-step-size
-    if pcolor = green ; if the turtle is located on a green patch
-    [
-      set pcolor black
-      set food-eaten (food-eaten + 1)
-      ; set label food-eaten
-    ]
-    if (food-eaten > 2) [set color blue]
-    if (food-eaten > 4) [set color yellow]
+to set-up-nest
+  ask patches [
+    set nest? (distancexy 0 0) < 2
+    if nest? [set pcolor orange]
   ]
-
-  tick
-end
-
-to-report coin-flip?     ; returns true or false at random
-  report random 2 = 0
 end
 
 to grow-food
@@ -50,6 +37,39 @@ to grow-food
   if (distancexy (-0.8 * max-pxcor) (0.8 * max-pycor)) < 5
   [ set pcolor green ]
   ]
+end
+
+to go
+  if not any? patches with [pcolor = green] [stop]
+  ask turtles
+  [
+    ifelse return-to-nest? = false [look-for-food] [return-to-nest]
+  ]
+
+  tick
+end
+
+to return-to-nest
+ face patch 0 0 fd 1
+  if pcolor = orange [set return-to-nest? false]
+end
+
+to look-for-food
+  ifelse coin-flip? [right random max-turn-angle][left random max-turn-angle]  ; if coin-flip? is true, turn right else turn left
+    forward random max-step-size
+    if pcolor = green ; if the turtle is located on a green patch
+    [
+      set pcolor black
+      set food-eaten (food-eaten + 1)
+      set return-to-nest? true
+      ; set label food-eaten
+    ]
+    if (food-eaten > 2) [set color blue]
+    if (food-eaten > 4) [set color yellow]
+end
+
+to-report coin-flip?     ; returns true or false at random
+  report random 2 = 0
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -132,7 +152,7 @@ population
 population
 1
 200
-50.0
+20.0
 1
 1
 NIL
@@ -180,7 +200,7 @@ max-turn-angle
 max-turn-angle
 1
 180
-120.0
+60.0
 1
 1
 NIL
