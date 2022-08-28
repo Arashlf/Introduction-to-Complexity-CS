@@ -1,4 +1,4 @@
-globals [x-current x-new x-current' x-new' num-turtles-created turtlex0-who turtlex0'-who]
+globals [x-current x-new x-current' x-new' x-current'' x-new'' num-turtles-created turtlex0-who turtlex0'-who turtlex0''-who]
 
 to setup
   ;; (for this model to work with NetLogo's new plotting features,
@@ -39,6 +39,21 @@ to setup
     ]
   set num-turtles-created num-turtles-created + 1
   set turtlex0'-who num-turtles-created  ; "id number" for this turtle
+
+  set x-current'' x0''
+  set x-new'' (R * x-current'' * (1 - x-current'))  ; logistic map
+
+
+  create-turtles 1; this turtle will plot x_{t+1} vs x_t using initial condition x0'
+    [
+      set color yellow
+      set xcor (x-current'' * max-pxcor)
+      set ycor (x-new'' * max-pycor)
+      set shape "dot"
+      set size 2
+    ]
+  set num-turtles-created num-turtles-created + 1
+  set turtlex0''-who num-turtles-created  ; "id number" for this turtle
 end
 
 to go
@@ -62,6 +77,13 @@ to iterate
       set xcor (x-current' * max-pxcor)  ; update coordinates for turtle representing second initial condition
       set ycor (x-new' * max-pycor)
       set label (word "(" precision x-current' 2 "," precision x-new' 2 ")")
+  ]
+  set x-current'' x-new''
+  set x-new'' (R * x-current'' * (1 - x-current''))  ; one iteration of logistic map
+  ask turtle turtlex0''-who [
+      set xcor (x-current'' * max-pxcor)  ; update coordinates for turtle representing second initial condition
+      set ycor (x-new'' * max-pycor)
+      set label (word "(" precision x-current'' 2 "," precision x-new'' 2 ")")
   ]
 end
 
@@ -126,10 +148,10 @@ to update-plot
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-293
-45
-603
-356
+430
+47
+740
+358
 -1
 -1
 9.152
@@ -154,9 +176,9 @@ ticks
 
 BUTTON
 87
-256
+269
 162
-295
+308
 step
 go
 NIL
@@ -171,9 +193,9 @@ NIL
 
 BUTTON
 13
-256
+269
 88
-295
+308
 NIL
 setup
 NIL
@@ -187,10 +209,10 @@ NIL
 1
 
 SLIDER
-11
-101
-223
-134
+10
+90
+222
+123
 R
 R
 0
@@ -202,10 +224,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-137
-223
-170
+10
+126
+222
+159
 x0
 x0
 0
@@ -217,10 +239,10 @@ NIL
 HORIZONTAL
 
 PLOT
-24
-404
-606
-581
+27
+418
+609
+595
 Logistic map
 time t (* 10)
 x_t
@@ -234,12 +256,13 @@ true
 PENS
 "x{t}" 0.1 0 -13345367 true "" "plot x-current"
 "x'{t}" 0.1 0 -2674135 true "" "plot x-current'"
+"x''{t}" 0.1 0 -10899396 true "" "plot x-current''"
 
 MONITOR
-6
-329
-72
-374
+9
+343
+75
+388
 x{t}
 x-current
 4
@@ -247,10 +270,10 @@ x-current
 11
 
 MONITOR
-71
-329
-137
-374
+74
+343
+140
+388
 x{t+1}
 x-new
 4
@@ -258,60 +281,40 @@ x-new
 11
 
 TEXTBOX
-257
-210
-300
-228
+395
+195
+438
+213
 x\n
 14
 0.0
 1
 
 TEXTBOX
-428
-382
-443
-400
+431
+396
+446
+414
 x
 14
 0.0
 1
 
 TEXTBOX
-264
-70
-292
-88
+402
+55
+430
+73
 1.0
 14
 0.0
 1
 
 TEXTBOX
-274
-362
-289
-380
-0
-14
-0.0
-1
-
-TEXTBOX
-300
-378
-315
-396
-0
-14
-0.0
-1
-
-TEXTBOX
-583
-383
-606
-401
+586
+397
+609
+415
 1.0
 14
 0.0
@@ -378,30 +381,30 @@ Set Parameters:
 1
 
 TEXTBOX
-14
-226
-180
-266
+12
+244
+178
+284
 Iterate logistic map:
 16
 0.0
 1
 
 TEXTBOX
-267
-218
-294
-236
+405
+203
+432
+221
 t+1
 11
 0.0
 1
 
 TEXTBOX
-440
-388
-455
-406
+443
+402
+458
+420
 t
 11
 0.0
@@ -409,9 +412,9 @@ t
 
 BUTTON
 160
-256
+269
 223
-295
+308
 NIL
 go
 T
@@ -425,10 +428,10 @@ NIL
 1
 
 SLIDER
-11
-176
-223
-209
+10
+165
+222
+198
 x0'
 x0'
 0
@@ -440,10 +443,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-144
-329
-209
-374
+147
+343
+212
+388
 x'{t}
 x-current'
 17
@@ -451,10 +454,10 @@ x-current'
 11
 
 MONITOR
-206
-329
-267
-374
+209
+343
+270
+388
 x'{t+1}
 x-new'
 17
@@ -462,24 +465,71 @@ x-new'
 11
 
 TEXTBOX
-46
-306
-99
-326
+49
+320
+102
+340
 First x
 16
 105.0
 1
 
 TEXTBOX
-168
-306
-240
-326
+171
+320
+243
+340
 Second x
 16
 15.0
 1
+
+SLIDER
+10
+204
+222
+237
+x0''
+x0''
+0
+1
+0.20002
+0.00001
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+302
+321
+356
+346
+Third x
+16
+55.0
+1
+
+MONITOR
+278
+343
+348
+388
+x'{t}
+x-current''
+17
+1
+11
+
+MONITOR
+352
+344
+409
+389
+x''{t+1}
+x-new''
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
