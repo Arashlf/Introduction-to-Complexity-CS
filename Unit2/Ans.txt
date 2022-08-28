@@ -1,8 +1,21 @@
 Beginner Level:
 
+1- Beyond r = 4, almost all initial values eventually leave the interval [0,1] and diverge.
+
+2- 0
+R = 1	->	0.2 -> 0.16 -> 0.1344 -> 0.1163 -> 0.1028 -> 0.0922 -> 
+		0.0837 -> 0.0767 -> 0.0708 -> 0.0658 -> 0.0615 -> ... -> 0
+
+3- Done
+
+4- Done
 
 Intermediate Level:
 
+1- 
 
+2- 
+
+3- 
 
 Advanced Level:

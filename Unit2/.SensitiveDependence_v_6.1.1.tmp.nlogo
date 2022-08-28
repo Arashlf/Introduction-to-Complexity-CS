@@ -54,14 +54,14 @@ to iterate
   ask turtle turtlex0-who [
     set xcor (x-current * max-pxcor)  ; update coordinates for turtle representing first initial condition
     set ycor (x-new * max-pycor)
-    set label (word "(" precision x-current 2 "," precision x-new 2 ")")
+    set label (word "(" precisionx-current "," x-new ")")
   ]
   set x-current' x-new'
   set x-new' (R * x-current' * (1 - x-current'))  ; one iteration of logistic map
   ask turtle turtlex0'-who [
       set xcor (x-current' * max-pxcor)  ; update coordinates for turtle representing second initial condition
       set ycor (x-new' * max-pycor)
-      set label (word "(" precision x-current' 2 "," precision x-new' 2 ")")
+      set label (word "(" x-current' "," x-new' ")")
   ]
 end
 

@@ -6,7 +6,8 @@ Bunnies-own [old]
 to setup
   ca
   let one-patch (patch-set patch 0 0)
-  ask one-patch [sprout-bunnies initial-population [set old false set shape "bunny2" set color white set size 4 disperse]]
+  ask one-patch [sprout-bunnies initial-population [set old false set shape "airplane" set color white set size 4 disperse]]
+  ask patches [set pcolor sky]
 end
 
 to reproduce
@@ -155,7 +156,7 @@ birthrate
 birthrate
 0
 5
-2.0
+4.0
 1
 1
 NIL
@@ -259,7 +260,6 @@ If you use this model, please cite it as: "Simple Population Growth" model, Comp
 Copyright 2013 Santa Fe Institute.
 
 This model is licensed by the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 License ( http://creativecommons.org/licenses/by-nc-nd/3.0/ ). This states that you may copy, distribute, and transmit the work under the condition that you give attribution to ComplexityExplorer.org, and your use is for non-commercial purposes.
-
 
 
 
@@ -599,7 +599,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
