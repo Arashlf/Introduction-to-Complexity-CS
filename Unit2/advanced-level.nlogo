@@ -1,160 +1,60 @@
-globals [x-current x-new x-current' x-new' x-current'' x-new'' num-turtles-created turtlex0-who turtlex0'-who turtlex0''-who]
+; Variables
+
+turtles-own [generation]
+
+globals [cur-gen]
+
+; Main Procedures
 
 to setup
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
-  set num-turtles-created -1; first turtle created will be number 0
-  draw-axes
-  draw-parabola
-  ask patches [set pcolor green]
-
-
-  set x-current x0
-  set x-new (R * x-current * (1 - x-current))  ; logistic map
-
-  create-turtles 1; this turtle will plot x_{t+1} vs x_t using initial condition x0
-  [
-    set color blue
-    set xcor (x-current * max-pxcor)
-    set ycor (x-new * max-pycor)
-    set shape "dot"
-    set size 5
-  ]
-  set num-turtles-created num-turtles-created + 1
-  set turtlex0-who num-turtles-created   ; "id number" for this turtle
-
-  set x-current' x0'
-  set x-new' (R * x-current' * (1 - x-current'))  ; logistic map
-
-  create-turtles 1; this turtle will plot x_{t+1} vs x_t using initial condition x0'
-    [
-      set color red
-      set xcor (x-current' * max-pxcor)
-      set ycor (x-new' * max-pycor)
-      set shape "dot"
-      set size 3
-    ]
-  set num-turtles-created num-turtles-created + 1
-  set turtlex0'-who num-turtles-created  ; "id number" for this turtle
-
-  set x-current'' x0''
-  set x-new'' (R * x-current'' * (1 - x-current'))  ; logistic map
-
-
-  create-turtles 1; this turtle will plot x_{t+1} vs x_t using initial condition x0'
-    [
-      set color yellow
-      set xcor (x-current'' * max-pxcor)
-      set ycor (x-new'' * max-pycor)
-      set shape "dot"
-      set size 2
-    ]
-  set num-turtles-created num-turtles-created + 1
-  set turtlex0''-who num-turtles-created  ; "id number" for this turtle
+  ca
+  reset-ticks
+  set cur-gen 0
+  ask n-of initial-pop patches [sprout 1[set color green
+                                         set shape "airplane"
+                                         set generation 0]]
 end
 
-to go
-  iterate  ; do one iteration of logistic map
-;  update-plot
-  wait .1
-  tick  ; increase tick number by 1
+to step
+  set cur-gen cur-gen + 1
+  produce
+  disperse
+  parents-die
+  compete
+  tick
 end
 
-to iterate
-  set x-current x-new
-  set x-new (R * x-current * (1 - x-current))  ; one iteration of logistic map
-  ask turtle turtlex0-who [
-    set xcor (x-current * max-pxcor)  ; update coordinates for turtle representing first initial condition
-    set ycor (x-new * max-pycor)
-    set label (word "(" precision x-current 2 "," precision x-new 2 ")")
-  ]
-  set x-current' x-new'
-  set x-new' (R * x-current' * (1 - x-current'))  ; one iteration of logistic map
-  ask turtle turtlex0'-who [
-      set xcor (x-current' * max-pxcor)  ; update coordinates for turtle representing second initial condition
-      set ycor (x-new' * max-pycor)
-      set label (word "(" precision x-current' 2 "," precision x-new' 2 ")")
-  ]
-  set x-current'' x-new''
-  set x-new'' (R * x-current'' * (1 - x-current''))  ; one iteration of logistic map
-  ask turtle turtlex0''-who [
-      set xcor (x-current'' * max-pxcor)  ; update coordinates for turtle representing second initial condition
-      set ycor (x-new'' * max-pycor)
-      set label (word "(" precision x-current'' 2 "," precision x-new'' 2 ")")
-  ]
+; Procedures
+
+to produce
+  ask turtles [hatch round reproduction-rate [set generation [generation] of myself + 1
+                                              set color random 10 + 55
+                                              rt random 90 + 30]]
 end
 
-to draw-axes   ; draws x and y axes
-  ask patches
-    [set pcolor white]
-  create-turtles 1
-  set num-turtles-created num-turtles-created + 1
-  ask turtles
-  [
-    set color black
-    set xcor min-pxcor
-    set ycor min-pycor
-    set heading 0
-    pen-down
-    fd max-pycor   ; draw y axis
-    pen-up
-    set xcor min-pxcor
-    set ycor min-pycor
-    set heading 90
-    pen-down
-    fd max-pxcor  ; draw x axis
-    die
-  ]
+to parents-die
+  ask turtles with [generation < cur-gen] [die]
 end
 
-to draw-parabola  ; draws parabola representing logistic map for given value of R
- let x 0
- let y 0
- create-turtles 1
- set num-turtles-created num-turtles-created + 1
-  ask turtles
-  [
-    set color black
-    set xcor x * min-pxcor
-    set ycor y * min-pycor
-    pen-down
-  ]
-  repeat 10000
-  [
-    set x (x + .0001)
-    ask turtles
-    [
-      set xcor (x * max-pxcor)
-      set ycor (R * x * (1 - x)) * max-pycor
-    ]
-  ]
-  ask turtles [die]
+to compete
+  ask turtles [if any? other turtles-here [die]]
+  ask turtles [if 8 - count turtles-on neighbors < space [die]]
 end
 
-;;plotting procedures -------------------
-
-to setup-plot
-  set-current-plot "logistic map"
-  set-plot-x-range  0 1
-  set-plot-y-range  0 1
-end
-
-to update-plot
-  set-current-plot-pen "x"
-  plot x-current
+to disperse
+  if count turtles <= count patches [
+    ask turtles [move-to one-of patches with [not any? turtles-here]]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-430
-47
-740
-358
+239
+10
+676
+448
 -1
 -1
-9.152
+13.0
 1
 10
 1
@@ -164,38 +64,31 @@ GRAPHICS-WINDOW
 0
 0
 1
-0
-32
-0
-32
+-16
+16
+-16
+16
 0
 0
 1
 ticks
 30.0
 
-BUTTON
-87
-269
-162
-308
-step
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
+TEXTBOX
+14
+21
+216
+71
+Advanced Level Model
+20
+0.0
 1
 
 BUTTON
-13
-269
-88
-308
+8
+68
+71
+101
 NIL
 setup
 NIL
@@ -208,215 +101,30 @@ NIL
 NIL
 1
 
-SLIDER
-10
-90
-222
-123
-R
-R
-0
-4
-3.9
-0.01
-1
+BUTTON
+84
+69
+147
+102
 NIL
-HORIZONTAL
-
-SLIDER
-10
-126
-222
-159
-x0
-x0
-0
-1
-0.2
-0.00001
-1
+step
 NIL
-HORIZONTAL
-
-PLOT
-27
-418
-609
-595
-Logistic map
-time t (* 10)
-x_t
-0.0
-5.0
-0.0
-1.0
-true
-true
-"" ""
-PENS
-"x{t}" 0.1 0 -13345367 true "" "plot x-current"
-"x'{t}" 0.1 0 -2674135 true "" "plot x-current'"
-"x''{t}" 1.0 0 -7500403 true "" "plot x-current''"
-
-MONITOR
-9
-343
-75
-388
-x{t}
-x-current
-4
 1
-11
-
-MONITOR
-74
-343
-140
-388
-x{t+1}
-x-new
-4
-1
-11
-
-TEXTBOX
-395
-195
-438
-213
-x\n
-14
-0.0
-1
-
-TEXTBOX
-431
-396
-446
-414
-x
-14
-0.0
-1
-
-TEXTBOX
-402
-55
-430
-73
-1.0
-14
-0.0
-1
-
-TEXTBOX
-586
-397
-609
-415
-1.0
-14
-0.0
-1
-
-TEXTBOX
-12
-10
-340
-64
-Logistic Map: Sensitive Dependence on Initial Conditions
-18
-95.0
-1
-
-TEXTBOX
-373
-10
-571
-66
-x     = R x  (1 - x  )
-16
-0.0
-1
-
-TEXTBOX
-385
-18
-410
-36
-t+1
-11
-0.0
-1
-
-TEXTBOX
-451
-18
-466
-36
-t
-11
-0.0
-1
-
-TEXTBOX
-506
-17
-521
-35
-t
-11
-0.0
-1
-
-TEXTBOX
-16
-67
-166
-87
-Set Parameters:
-16
-0.0
-1
-
-TEXTBOX
-12
-244
-178
-284
-Iterate logistic map:
-16
-0.0
-1
-
-TEXTBOX
-405
-203
-432
-221
-t+1
-11
-0.0
-1
-
-TEXTBOX
-443
-402
-458
-420
-t
-11
-0.0
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 BUTTON
-160
-269
-223
-308
-NIL
+161
+69
+224
+102
 go
+step
 T
 1
 T
@@ -428,142 +136,104 @@ NIL
 1
 
 SLIDER
-10
-165
-222
-198
-x0'
-x0'
+35
+138
+207
+171
+initial-pop
+initial-pop
 0
+50
+30.0
 1
-0.20001
-.00001
 1
 NIL
 HORIZONTAL
-
-MONITOR
-147
-343
-212
-388
-x'{t}
-x-current'
-17
-1
-11
-
-MONITOR
-209
-343
-270
-388
-x'{t+1}
-x-new'
-17
-1
-11
-
-TEXTBOX
-49
-320
-102
-340
-First x
-16
-105.0
-1
-
-TEXTBOX
-171
-320
-243
-340
-Second x
-16
-15.0
-1
 
 SLIDER
-10
-204
-222
-237
-x0''
-x0''
+34
+186
+206
+219
+reproduction-rate
+reproduction-rate
 0
-1
-0.20002
-0.00001
+5
+2.0
+0.5
 1
 NIL
 HORIZONTAL
 
-TEXTBOX
-302
-321
-356
-346
-Third x
-16
-55.0
+SLIDER
+35
+237
+207
+270
+space
+space
 1
+8
+8.0
+1
+1
+NIL
+HORIZONTAL
 
-MONITOR
-278
-343
-348
-388
-x'{t}
-x-current''
-17
-1
-11
-
-MONITOR
-352
-344
-409
-389
-x''{t+1}
-x-new''
-17
-1
-11
+PLOT
+18
+312
+218
+462
+plot-1
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count turtles"
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model demonstrates sensitive dependence on initial conditions in the logistic map, x{t+1} = R x{t} (1 - x{t}).  This sensitive dependence is seen when R is in the chaotic regime. 
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
-This model is very similar to LogisticMap.nlogo.  The only difference is that there is a second time series (x{t}, x{t+1}), with its own initial condition.  We see the first time series in red, and the second in blue.  By setting R to be in the chaotic regime and the two initial conditions (x{0} and x'{0}) to be very close to each other (but not exactly equal), it can be seen how a very small difference in the initial condition can produce very large, and hard-to-predict differences in the behavior of the systems. 
+(what rules the agents use to create the overall behavior of the model)
 
 ## HOW TO USE IT
 
-Use this model in the same way you used LogisticMap.nlogo, but in addition set the value of x'{0}.  
+(how to use the model, including a description of each of the items in the Interface tab)
+
+## THINGS TO NOTICE
+
+(suggested things for the user to notice while running the model)
+
+## THINGS TO TRY
+
+(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+
+## EXTENDING THE MODEL
+
+(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+
+## NETLOGO FEATURES
+
+(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+
+## RELATED MODELS
+
+(models in the NetLogo Models Library and elsewhere which are of related interest)
 
 ## CREDITS AND REFERENCES
 
-This model is part of the Dynamics series of the Complexity Explorer project.  
- 
-Main Author:  Melanie Mitchell
-
-Contributions from:  John Balwit
-
-Netlogo:  Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-
-## HOW TO CITE
-
-If you use this model, please cite it as: "Sensitive Dependence" model, Complexity Explorer project, http://complexityexplorer.org
-
-## COPYRIGHT AND LICENSE
-
-Copyright 2013 Santa Fe Institute.  
-
-This model is licensed by the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 License ( http://creativecommons.org/licenses/by-nc-nd/3.0/ ). This states that you may copy, distribute, and transmit the work under the condition that you give attribution to ComplexityExplorer.org, and your use is for non-commercial purposes.
+(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -757,6 +427,22 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
+sheep
+false
+15
+Circle -1 true true 203 65 88
+Circle -1 true true 70 65 162
+Circle -1 true true 150 105 120
+Polygon -7500403 true false 218 120 240 165 255 165 278 120
+Circle -7500403 true false 214 72 67
+Rectangle -1 true true 164 223 179 298
+Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
+Circle -1 true true 3 83 150
+Rectangle -1 true true 65 221 80 296
+Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
+Polygon -7500403 true false 276 85 285 105 302 99 294 83
+Polygon -7500403 true false 219 85 210 105 193 99 201 83
+
 square
 false
 0
@@ -840,6 +526,13 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
+
+wolf
+false
+0
+Polygon -16777216 true false 253 133 245 131 245 133
+Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
+Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false
