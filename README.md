@@ -7,8 +7,8 @@ In this course you'll learn about the tools used by scientists to understand com
 Syllabus:
 1. What is Complexity? [Link](Unit1)
 2. Dynamics and Chaos [Link](Unit2)
-3. Fractals
-4. Information, Order, and Randomness
+3. Fractals  [Link](Unit3)
+4. Information, Order, and Randomness  [Link](Unit4)
 5. Genetic Algorithms
 6. Cellular Automata
 7. Models of Biological Self-Organization
