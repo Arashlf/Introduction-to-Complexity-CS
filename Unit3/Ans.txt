@@ -1,0 +1,34 @@
+Beginner Level:
+
+1- Done.
+
+2- Hausdorff Dimension: 1.262
+5: 1.269
+10: 1.267  	Winner
+20: 1.218
+
+3- Hausdorff Dimension: 1.262
+5: 1.288
+10: 1.273
+20: 1.218
+It made it worse.
+
+4- Done
+
+5- 1.26
+i=1	->	1.475
+i=2	->	1.447
+i=5	->	1.396
+i=5  0.5->	1.422
+i=10	->	1.373
+i=10 0.5->	1.328
+
+Intermediate Level:
+
+1- Done
+
+2- Done
+Hausdorff Dimension: 1.645 	Box: 1.352
+
+Advanced Level:
+

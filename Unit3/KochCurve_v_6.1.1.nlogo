@@ -27,14 +27,31 @@ to iterate
   set size size / 3
   hatch 1
   fd size / 2
-  lt 60
+  lt 90
   hatch 1
   fd size / 2
-  rt 120
+  rt 90
   hatch 1
   fd size / 2
-  lt 60
+  rt 90
+  hatch 1
+  fd size / 2
+  lt 90
 end
+
+; Old
+;to iterate
+;  set size size / 3
+;  hatch 1
+;  fd size / 2
+;  lt 60
+;  hatch 1
+;  fd size / 2
+;  rt 120
+;  hatch 1
+;  fd size / 2
+;  lt 60
+;end
 
 
 ; Copyright 1998 Uri Wilensky.
@@ -44,7 +61,7 @@ GRAPHICS-WINDOW
 215
 10
 919
-279
+537
 -1
 -1
 2.8642
@@ -59,8 +76,8 @@ GRAPHICS-WINDOW
 1
 -121
 121
--45
-45
+-90
+90
 1
 1
 1
@@ -513,7 +530,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.2
 @#$#@#$#@
 setup repeat 4 [ step ]
 @#$#@#$#@

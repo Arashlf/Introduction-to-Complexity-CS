@@ -62,7 +62,7 @@ to setup
   set fractal-dim "N/A" ;the first iteration has not yet been drawn, so we don't know what the Hausdorff dimension is
 
   ;Setting the initial turtle position
-  if (fractal-example = "koch-curve" or fractal-example = "cantor-set") [set x-cor -150 set y-cor 0 set divisions 3]
+  if (fractal-example = "koch-curve" or fractal-example = "cantor-set" or fractal-example = "new") [set x-cor -150 set y-cor 0 set divisions 3]
   if(fractal-example = "levy-curve" or fractal-example = "dragon-curve") [set x-cor -60 set y-cor 0 set divisions sqrt 2]
   if(fractal-example = "sierpinski-triangle")[set x-cor -100 set y-cor 0]
   crt 1 ;creating the initial turtle
@@ -110,6 +110,19 @@ to iterate
     ask turtles [
       set new? false ]
     t  walk l 60 t  walk r 120 t  walk l 60 t walk d ;l-system
+    set divisions 3 ;the factor by which the length decreases
+    set len (len / divisions)
+    fractal-dimension  ;calculates & updates fracal dimension
+    tick
+  ]
+
+  ;Creates standard new curve
+  if fractal-example = "new"
+  [
+    ask patches [set pcolor black] ; clears screen
+    ask turtles [
+      set new? false ]
+    t  walk l 90 t  walk r 90  t  walk r 90 t  walk l 90 t walk d ;l-system
     set divisions 3 ;the factor by which the length decreases
     set len (len / divisions)
     fractal-dimension  ;calculates & updates fracal dimension
@@ -490,10 +503,10 @@ fractal-dim
 11
 
 BUTTON
-138
-278
-250
-311
+137
+334
+249
+367
 Box Counting Go
 box-counting-go
 T
@@ -535,10 +548,10 @@ precision(slope)3
 11
 
 MONITOR
-91
-413
-173
-458
+90
+469
+172
+514
 Box Length
 precision(box-size)2
 17
@@ -546,10 +559,10 @@ precision(box-size)2
 11
 
 MONITOR
-26
-413
-92
-458
+25
+469
+91
+514
 NIL
 iteration
 17
@@ -557,10 +570,10 @@ iteration
 11
 
 TEXTBOX
-28
-251
-242
-275
+27
+307
+241
+331
 Box-Counting Controls
 18
 0.0
@@ -597,10 +610,10 @@ Box-Counting Dimension
 1
 
 BUTTON
-73
-184
-187
-233
+72
+240
+186
+289
 NIL
 iterate
 NIL
@@ -614,10 +627,10 @@ NIL
 1
 
 SLIDER
-25
-310
-250
-343
+24
+366
+249
+399
 initial-box-length
 initial-box-length
 .2
@@ -629,10 +642,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-24
-343
-250
-376
+23
+399
+249
+432
 increment
 increment
 0
@@ -746,20 +759,20 @@ NIL
 1
 
 TEXTBOX
-29
-376
-239
-418
+28
+432
+238
+474
 Amount that box lenth increases per iteration of box counting
 11
 0.0
 1
 
 MONITOR
-173
-413
-244
-458
+172
+469
+243
+514
 # of Boxes
 count boxes with [color = red]
 17
@@ -767,10 +780,10 @@ count boxes with [color = red]
 11
 
 BUTTON
-25
-278
-140
-311
+24
+334
+139
+367
 Box Counting Setup
 box-counting-setup
 NIL
@@ -804,6 +817,23 @@ lin-reg-eq
 17
 1
 11
+
+BUTTON
+96
+183
+159
+216
+New
+ca\nset fractal-example \"new\"\nsetup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1124,7 +1154,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.2
 @#$#@#$#@
 ballSetup
 repeat 14 [ go ]
