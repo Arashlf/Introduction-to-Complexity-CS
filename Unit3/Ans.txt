@@ -32,3 +32,6 @@ Hausdorff Dimension: 1.645 	Box: 1.352
 
 Advanced Level:
 
+1- Almost Done. [ and ] should be fixed
+
+2- 
