@@ -1,0 +1,44 @@
+Beginner Level:
+
+1- Done
+a) 5*4*3 = 60
+b) 4*4*4 = 64
+c) 3
+
+2- Done
+a) S = ln 6  = 1.79
+b) S = ln 6! = 6.579
+
+3- H = -log(1/46656) = log2(6) = 15.488 bits
+
+4- H = -log(1/5) = log2(5) = 2.322 bits
+
+5- warning alarm! It can be on and off. So, it has two states, True or False.
+   The probability of beign True is much lesser than False. To lets assume
+   p(T) = 0.01 where as p(F) = 0.99
+   H = - 0.01log(0.01) - 0.99log(0.99) = 0.081 bits
+
+6- Task: Compare information content of two songs in spanish and english:
+Spanish = 6.9793
+English = 5.7603
+
+7- 
+R=2.0	-> H = 0
+R=3.1	-> H = 0.01
+R=3.49	-> H = 1
+R=3.52	-> H = 0.81
+R=4.0	-> H = 1
+
+Intermediate Level:
+
+1- 
+
+2- 
+
+3- 
+
+4- 
+
+Advanced Level:
+
+1- 
