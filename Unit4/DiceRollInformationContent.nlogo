@@ -1,165 +1,129 @@
-globals [x-current x-new x-current' x-new' num-turtles-created turtlex0-who turtlex0'-who
-         current-symbol num-zeros num-ones zero-prob one-prob total-num-symbols info-content]
+extensions [table]
+
+globals [txt freq-table probabilty-table word-count Max-Word-Count result heads-count tails-count]
 
 to setup
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
-  clear-output
-  set num-turtles-created -1; first turtle created will be number 0
-  draw-axes
-  draw-parabola
-
-  set x-current x0
-  set x-new (R * x-current * (1 - x-current))  ; logistic map
-
-  ; Set up variables for measuring information content
-  set num-zeros 0
-  set num-ones 0
-  set total-num-symbols 0
-  update-info-content
-
-
-  create-turtles 1; this turtle will plot x_{t+1} vs x_t using initial condition x0
-  [
-    set color blue
-    set xcor (x-current * max-pxcor)
-    set ycor (x-new * max-pycor)
-    set shape "dot"
-    set size 3
-  ]
-  set num-turtles-created num-turtles-created + 1
-  set turtlex0-who num-turtles-created   ; "id number" for this turtle
-
-  setup-plot-info-content
-  update-plot-info-content
-  setup-plot-logistic
-  update-plot-logistic
-
+  ca
+  set coin-results ""
+  set Max-Word-Count 1000
+  set heads-count 0
+  set tails-count 0
+  crt 1 [set shape "heads" set size 10 set color gray set heading 90]
 end
 
 to go
-  iterate  ; do one iteration of logistic map
-  tick  ; increase tick number by 1
+  set txt coin-results
+  build-frequency-table list-of-words
+  build-probability-table
+  sort-list
 end
 
-to iterate
-  set x-current x-new
-  set x-new (R * x-current * (1 - x-current))  ; one iteration of logistic map
-  ask turtle turtlex0-who
-  [
-      set xcor (x-current * max-pxcor)  ; update coordinates for turtle representing first initial condition
-      set ycor (x-new * max-pycor)
+to-report list-of-words
+  let $txt txt
+  set $txt word $txt " "  ; add space  for loop termination
+  let words []  ; list of values
+  while [not empty? $txt]
+  [ let n position " " $txt
+    ;show word "n: " n
+    let $item substring $txt 0 n  ; extract item
+    if not empty? $item [if member? last $item ".,?!;:" [set $item butlast $item ] ] ; strip trailing punctuation
+    ;carefully [set $item read-from-string $item ][ ] ; convert if number
+    carefully [if member? first $item " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" [set words lput $item words]][]  ; append to list, ingnore cr/lfs
+    set $txt substring $txt (n + 1) length $txt  ; remove $item and space
   ]
-  update-plot-logistic
-  update-info-content
-  update-plot-info-content
+  report words
+  print ""
 end
 
-to update-info-content
- ; Update variables for measuring information content
-  ifelse (x-new < threshold)
-    [
-    set current-symbol 0
-    set num-zeros (num-zeros + 1)
+to build-frequency-table [#word]
+  set freq-table table:make
+  set probabilty-table table:make
+  set word-count 0
+  foreach #word [ ?1 ->
+    set word-count word-count + 1  ;; find total count of words
+    if word-count >= Max-Word-Count [stop]
+    ifelse table:has-key? freq-table ?1  [let i table:get freq-table ?1 table:put freq-table ?1 i + 1 ] [table:put freq-table ?1 1]
     ]
-    [
-    set current-symbol 1
-    set num-ones (num-ones + 1)
+
+end
+
+to build-probability-table
+  foreach table:keys freq-table [ ?1 -> table:put probabilty-table ?1 table:get freq-table ?1 * (1 / word-count) ]
+
+  ;print freq-table
+  ;print probabilty-table
+end
+
+
+to-report H
+  let sum-plogp 0
+  foreach table:keys probabilty-table
+   [ ?1 ->
+     let p table:get probabilty-table ?1
+     set sum-plogp  sum-plogp  + -1 * p * log p 2
+   ]
+   report sum-plogp
+end
+
+to sort-list
+  let freq-list []
+  foreach table:keys freq-table [ ?1 -> set freq-list lput list ?1 table:get freq-table ?1  freq-list  ] ;builds a list version of the table.
+  set freq-table table:from-list sort-by [ [?1 ?2] -> last ?1 > last ?2 ] freq-list ;sort list by frequency counts and recreates table.
+end
+
+
+to roll-fair-dice
+  set result one-of [" 1" " 2" " 3" " 4" " 5" " 6"]
+  show-roll
+end
+
+
+to roll-biased-dice
+  ask turtles [set label ""]
+ ifelse random 100 < ProbOfHeads [set result " Heads"] [set result " Tails"]
+ show-roll
+end
+
+to show-roll
+  ifelse result = " Heads" [
+    repeat 5 [
+    wait .06
+    ask turtles [set shape "coin-side"]
+    wait .06
+    ask turtles [set shape "tails"]
+    wait .06
+    ask turtles [set shape "coin-side"]
+    wait .06
+    ask turtles [set shape "heads"]
     ]
-    output-write current-symbol
-  set total-num-symbols (total-num-symbols + 1)
-  set zero-prob (num-zeros / total-num-symbols)
-  set one-prob (num-ones / total-num-symbols)
-  ifelse zero-prob = 0 or one-prob = 0
-    [set info-content 0]
-    [set info-content (0 - ((zero-prob * (log zero-prob 2)) + (one-prob * (log one-prob 2))))]
-end
-
-to draw-axes   ; draws x and y axes
-  ask patches
-    [set pcolor white]
-  create-turtles 1
-  set num-turtles-created num-turtles-created + 1
-  ask turtles
-  [
-    set color black
-    set xcor min-pxcor
-    set ycor min-pycor
-    set heading 0
-    pen-down
-    fd max-pycor   ; draw y axis
-    pen-up
-    set xcor min-pxcor
-    set ycor min-pycor
-    set heading 90
-    pen-down
-    fd max-pxcor  ; draw x axis
-    die
+    set heads-count heads-count + 1
   ]
-end
-
-to draw-parabola  ; draws parabola representing logistic map for given value of R
- let x 0
- let y 0
- create-turtles 1
- set num-turtles-created num-turtles-created + 1
-  ask turtles
   [
-    set color black
-    set xcor x * min-pxcor
-    set ycor y * min-pycor
-    pen-down
-  ]
-  repeat 10000
-  [
-    set x (x + .0001)
-    ask turtles
-    [
-      set xcor (x * max-pxcor)
-      set ycor (R * x * (1 - x)) * max-pycor
+    repeat 5 [
+    wait .06
+    ask turtles [set shape "coin-side"]
+    wait .06
+    ask turtles [set shape "tails"]
+    wait .06
+    ask turtles [set shape "coin-side"]
+    wait .06
+    ask turtles [set shape "heads"]
+    wait .06
+    ask turtles [set shape "tails"]
     ]
+    set tails-count tails-count + 1
   ]
-  ask turtles [die]
-end
-
-
-
-
-;;plotting procedures -------------------
-
-to setup-plot-logistic
-  set-current-plot "logistic map"
-  set-plot-x-range  0 1
-  set-plot-y-range  0 1
-end
-
-to setup-plot-info-content
-  set-current-plot "information content"
-  set-plot-x-range  0 10
-  set-plot-y-range  0 1
-end
-
-to update-plot-logistic
-  set-current-plot "logistic map"
-  plot x-current
-end
-
-to update-plot-info-content
-  set-current-plot "information content"
-  plot info-content
+  set coin-results word coin-results result
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-393
+833
 10
-793
-411
+1174
+352
 -1
 -1
-11.9
+10.1
 1
 10
 1
@@ -169,24 +133,73 @@ GRAPHICS-WINDOW
 1
 1
 1
-0
-32
-0
-32
+-16
+16
+-16
+16
 0
 0
 1
 ticks
 30.0
 
+INPUTBOX
+8
+263
+394
+375
+coin-results
+ 1 2
+1
+0
+String
+
 BUTTON
-91
-63
-154
-96
-NIL
+77
+445
+294
+495
+Calculate Information Content
 go
+NIL
+1
 T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+100
+508
+261
+553
+Information Content (H)
+H
+4
+1
+11
+
+TEXTBOX
+11
+20
+395
+64
+Shannon Information Content of Coin Flips
+18
+95.0
+1
+
+BUTTON
+103
+64
+238
+97
+Roll Fair Dice
+roll-fair-dice
+NIL
 1
 T
 OBSERVER
@@ -197,11 +210,53 @@ NIL
 1
 
 BUTTON
-29
-63
-92
-96
+257
+64
+392
+97
+Roll Biased Dice
+roll-biased-dice
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+110
+133
+278
+175
+NIL
+11
+0.0
+1
+
+SLIDER
+257
+101
+392
+134
+ProbOfHeads
+ProbOfHeads
+0
+100
+60.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+13
+65
+86
+98
+Setup
 setup
 NIL
 1
@@ -213,216 +268,64 @@ NIL
 NIL
 1
 
-SLIDER
-16
-99
-188
-132
-R
-R
-0
-4
-3.64
-0.01
-1
-NIL
-HORIZONTAL
-
-SLIDER
-16
-131
-188
-164
-x0
-x0
-0
-1
-0.2
-0.00000001
-1
-NIL
-HORIZONTAL
-
-PLOT
-10
-254
-379
+MONITOR
+43
 383
-logistic map
-time t (* 10)
-x_t
-0.0
-1.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"initial condition x0" 0.1 0 -13345367 true "" ""
-
-MONITOR
-30
-203
-105
-248
-x_t
-x-current
-8
+172
+428
+Number of "Heads"
+heads-count
+17
 1
 11
 
 MONITOR
-103
-203
-176
-248
-x_{t+1}
-x-new
-8
-1
-11
-
-PLOT
-10
-383
-378
-521
-information content
-time (* 10)
-H (estimated)
-0.0
-1.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" ""
-
-MONITOR
-194
-151
-381
-196
-number of symbols seen so far
-total-num-symbols
-0
+191
+384
+311
+429
+Number of "Tails"
+tails-count
+17
 1
 11
 
 MONITOR
-263
-62
-359
-107
-probability of 0
-zero-prob
-2
+517
+130
+594
+175
+Dice outout
+coin-results
+17
 1
 11
-
-MONITOR
-262
-106
-358
-151
-probability of 1
-one-prob
-2
-1
-11
-
-MONITOR
-194
-195
-381
-240
-Information content H (estimated)
-info-content
-2
-1
-11
-
-MONITOR
-193
-62
-264
-107
-NIL
-num-zeros
-0
-1
-11
-
-MONITOR
-194
-106
-264
-151
-NIL
-num-ones
-0
-1
-11
-
-OUTPUT
-395
-438
-797
-499
-10
-
-TEXTBOX
-25
-10
-346
-53
-Logistic Map:  Shannon Information Content of Symbolic Dynamics
-18
-95.0
-1
-
-SLIDER
-16
-165
-188
-198
-threshold
-threshold
-0
-1
-0.5
-0.01
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model calculates the Shannon information content of the "symbolic dynamics" of the logistic map, x_{t+1} = R x_t (1 - x_t), where x_t is the value of x at time step t, and x_{t+1} is the value of x at the next time step. x is always between 0 and 1.   R is a control parameter that ranges from 0 to 4.  The symbolic dynamics is calculated as follows:  At each time step in the logistic map, whenever xt is less than 0.5, a "0" is output; otherwise a "1" is output.   The Shannon information content H of the cumulative symbolic dynamics is estmated at each time step as
-	H = - [(probability_0 * log_2 probability_0)
-		+ (probability_1 * log_2 probability_1)]
+This model calculates the Shannon information content of a set of coin flips.
 
+Shannon information content is usually expressed by the average number of bits needed to store or communicate one symbol in a message. This information content quantifies the uncertainty involved in predicting the value of a future event (or random variable). For example, the ability to correctly guess the outcome of a fair coin flip (one with two equally likely outcomes) provides less information (lower entropy, less surprising) than specifying the outcome from a roll of a die (six equally likely outcomes). Using this method we are able to precisely measure this  "surprise value" in different contexts.
 
-## HOW TO USE IT
+## HOW IT WORKS
 
-Use the sliders to set R and x_0.
-    Click on "setup" to draw the axes and the parabola representing the function y = R x (1 - x).  Click on "go" to do successive iterations of the logistic map.
+You can either flip a fair coin (probability of heads = 1/2) or a biased coin (probability of heads set by a slider).    Flip the coin several times to get a number of samples, and then click on "Calculate Information Content".
 
 ## CREDITS AND REFERENCES
 
 This model is part of the Information Theory series of the Complexity Explorer project.
-Main Author: Melanie Mitchell
+
+Main Author: John Balwit
+
+Contributions from:  Melanie Mitchell
 
 Netlogo:  Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 
 ## HOW TO CITE
 
-If you use this model, please cite it as: "Logistic Map Information Content" model, Complexity Explorer project, http://complexityexplorer.org
+If you use this model, please cite it as: "Coin-Flip Information Content" model, Complexity Explorer project, http://complexityexplorer.org
 
 ## COPYRIGHT AND LICENSE
 
@@ -496,6 +399,12 @@ false
 0
 Circle -7500403 true true 0 0 300
 Circle -16777216 true false 30 30 240
+
+coin-side
+true
+0
+Line -7500403 true 150 0 150 300
+Rectangle -7500403 true true 135 0 165 300
 
 cow
 false
@@ -572,6 +481,16 @@ Circle -16777216 true false 113 68 74
 Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
 Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
 
+heads
+false
+0
+Circle -7500403 true true 3 3 294
+Circle -16777216 true false 33 33 234
+Circle -7500403 true true 90 105 30
+Circle -7500403 true true 180 105 30
+Polygon -7500403 true true 135 150 150 180 165 150
+Polygon -7500403 true true 120 210 180 210 165 225 135 225
+
 house
 false
 0
@@ -585,11 +504,6 @@ false
 0
 Polygon -7500403 true true 150 210 135 195 120 210 60 210 30 195 60 180 60 165 15 135 30 120 15 105 40 104 45 90 60 90 90 105 105 120 120 120 105 60 120 60 135 30 150 15 165 30 180 60 195 60 180 120 195 120 210 105 240 90 255 90 263 104 285 105 270 120 285 135 240 165 240 180 270 195 240 210 180 210 165 195
 Polygon -7500403 true true 135 195 135 240 120 255 105 255 105 285 135 285 165 240 165 195
-
-line
-true
-0
-Line -7500403 true 150 0 150 300
 
 line half
 true
@@ -622,6 +536,15 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
+sheep
+false
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
+
 square
 false
 0
@@ -637,6 +560,19 @@ star
 false
 0
 Polygon -7500403 true true 151 1 185 108 298 108 207 175 242 282 151 216 59 282 94 175 3 108 116 108
+
+tails
+false
+0
+Circle -7500403 true true 3 3 294
+Circle -16777216 true false 30 30 240
+Line -7500403 true 150 285 150 15
+Line -7500403 true 15 150 285 150
+Circle -7500403 true true 120 120 60
+Line -7500403 true 216 40 79 269
+Line -7500403 true 40 84 269 221
+Line -7500403 true 40 216 269 79
+Line -7500403 true 84 40 221 269
 
 target
 false
@@ -705,6 +641,15 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
+
+wolf
+false
+0
+Polygon -7500403 true true 135 285 195 285 270 90 30 90 105 285
+Polygon -7500403 true true 270 90 225 15 180 90
+Polygon -7500403 true true 30 90 75 15 120 90
+Circle -1 true false 183 138 24
+Circle -1 true false 93 138 24
 
 x
 false

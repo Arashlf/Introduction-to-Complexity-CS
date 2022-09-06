@@ -65,6 +65,21 @@ to go
         [wait .01 set goal-macrostate goal-macrostate + 1] [wait .01 set non-macrostate non-macrostate + 1]
   ]
 
+  if macrostates = "Exactly two of the same kind" [
+    ifelse length remove-duplicates [shape] of all-reels = 2
+       [wait .04 set goal-macrostate goal-macrostate + 1] [wait .02 set non-macrostate non-macrostate + 1]
+  ]
+
+  if macrostates = "No Lemons" [
+     ifelse length remove "lemon" [shape] of all-reels = 3
+        [wait .01 set non-macrostate non-macrostate + 1] [wait .01 set goal-macrostate goal-macrostate + 1]
+  ]
+
+    if macrostates = "Two Lemons and one orange" [
+      ifelse length remove "orange" [shape] of all-reels = 2 and length remove "lemon" [shape] of all-reels  = 1
+        [wait .01 set goal-macrostate goal-macrostate + 1] [wait .01 set non-macrostate non-macrostate + 1]
+  ]
+
     tick
 
   ] ;end repeat
@@ -203,8 +218,8 @@ CHOOSER
 194
 Macrostates
 Macrostates
-"Three of the same kind" "Exactly two pears" "At least two of the same kind" "One orange and one cherry" "No apples or cherries" "At least one lemon"
-5
+"Three of the same kind" "Exactly two pears" "At least two of the same kind" "One orange and one cherry" "No apples or cherries" "At least one lemon" "Exactly two of the same kind" "No Lemons" "Two Lemons and one orange"
+6
 
 PLOT
 483
@@ -681,7 +696,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

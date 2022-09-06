@@ -31,13 +31,14 @@ R=4.0	-> H = 1
 
 Intermediate Level:
 
-1- 
+1- H = -(0.1)log(0.1) -(1/6)log(1/6) - 498(0.9-1/6)log(0.9-1/6)
+     = -(0.1)log(0.1) -(1/6)log(1/6) - (0.734)log(0.734/498) = 7.662
 
-2- 
+2- Done
 
-3- 
+3- Done
 
-4- 
+4- Done
 
 Advanced Level:
 
