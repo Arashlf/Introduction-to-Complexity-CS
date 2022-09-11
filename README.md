@@ -9,8 +9,8 @@ Syllabus:
 2. Dynamics and Chaos [Link](Unit2)
 3. Fractals  [Link](Unit3)
 4. Information, Order, and Randomness  [Link](Unit4)
-5. Genetic Algorithms
-6. Cellular Automata
+5. Genetic Algorithms [Link](Unit5)
+6. Cellular Automata [Link](Unit6)
 7. Models of Biological Self-Organization
 8. Models of Cooperation in Social Systems
 9. Networks
