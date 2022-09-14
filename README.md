@@ -11,7 +11,7 @@ Syllabus:
 4. Information, Order, and Randomness  [Link](Unit4)
 5. Genetic Algorithms [Link](Unit5)
 6. Cellular Automata [Link](Unit6)
-7. Models of Biological Self-Organization
+7. Models of Biological Self-Organization [Link](Unit7)
 8. Models of Cooperation in Social Systems
 9. Networks
 10. Scaling in Biology and Society
